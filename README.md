@@ -42,3 +42,11 @@ If you want to modify or develop the theme further, follow these steps:
 6. **Production Build**: When you are ready, you can use `yarn build` to build the production copy of your theme.
 
 *Note: You do not need the `node_modules` folder in production, you can safely remove it or avoid zipping it if you are packaging the theme directory.*
+
+## Preview
+
+<img width="1856" height="1038" alt="Screenshot from 2026-05-11 01-59-32" src="https://github.com/user-attachments/assets/4cae1d63-7c71-472c-a221-224666e4d4c2" />
+<br>
+<img width="1856" height="1228" alt="Screenshot from 2026-05-11 02-01-00" src="https://github.com/user-attachments/assets/f1564eb5-18f9-4142-9458-2eb60feee222" />
+<br>
+<img width="1856" height="1183" alt="screencapture-127-0-0-1-8000-scoreboard-2026-05-11-02_03_26" src="https://github.com/user-attachments/assets/d753079a-4ed6-4a2e-82f5-7e90cfee3c93" />
