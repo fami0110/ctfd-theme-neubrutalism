@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if request.path == "/" %}
+    <section class="page-hero page-hero-home">
+      <div class="container">
+        <div class="page-hero-grid">
+          <div class="page-hero-copy">
+            <div class="page-hero-title">
+              <h1>{{ Configs.ctf_name }}</h1>
+              <p class="lede">{{ Configs.ctf_description | safe }}</p>
+            </div>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="{{ url_for('challenges.listing') }}">
+                {% trans %}Open Challenges{% endtrans %}
+              </a>
+              {% if authed() %}
+                <a class="btn btn-secondary" href="{{ url_for('scoreboard.listing') }}">
+                  {% trans %}View Scoreboard{% endtrans %}
+                </a>
+              {% elif registration_visible() %}
+                <a class="btn btn-secondary" href="{{ url_for('auth.register') }}">
+                  {% trans %}Create Account{% endtrans %}
+                </a>
+              {% else %}
+                <a class="btn btn-secondary" href="{{ url_for('auth.login') }}">
+                  {% trans %}Enter Platform{% endtrans %}
+                </a>
+              {% endif %}
+            </div>
+          </div>
+          <div class="hero-panel">
+            <div class="hero-panel-spotlight">              
+              <div x-data="HeroPanel"
+              data-start="{{ get_config('start') or 0 }}"
+              data-end="{{ get_config('end') or 0 }}">
+                <h2 class="eyebrow" x-text="label"></h2>
+                <div class="hero-clock" x-text="timer"></div>
+              </div>
+            </div>
+            <div class="hero-metrics">
+              <div>
+                <span class="fw-bold">{% trans %}Mode{% endtrans %}</span>
+                <strong>{{ get_mode_as_word(capitalize=True) }}</strong>
+              </div>
+              <div>
+                <span class="fw-bold">{% trans %}Challenges{% endtrans %}</span>
+                <strong>{{ get_challenge_count() }}</strong>
+              </div>
+              <div>
+                <span class="fw-bold">{% trans %}Status{% endtrans %}</span>
+                <strong>{% if authed() %}{% trans %}Logged In{% endtrans %}{% else %}{% trans %}Guest{% endtrans %}{% endif %}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {# <section class="page-section">
+      <div class="container">
+        <div class="page-copy-shell">
+          <div class="page-copy-block content-prose">
+            {{ content | safe }}
+          </div>
+        </div>
+      </div>
+    </section> #}
+    
+  {% else %}
+    <section class="page-hero page-hero-compact">
+      <div class="container">
+        <div class="page-head">
+          <p class="eyebrow">{% trans %}Page{% endtrans %}</p>
+          <h1>{{ title or Configs.ctf_name }}</h1>
+        </div>
+      </div>
+    </section>
+    <section class="page-section">
+      <div class="container">
+        <div class="page-panel page-panel-prose content-prose">
+          {{ content | safe }}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {{ Assets.js("assets/js/page.js") }}
+{% endblock %}
