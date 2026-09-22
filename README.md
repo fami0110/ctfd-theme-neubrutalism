@@ -13,18 +13,9 @@ git clone https://github.com/fami0110/ctfd-theme-neubrutalism.git neubrutalism
 
 After cloning, you can select the `neubrutalism` theme from the CTFd Admin Panel under **Config > Themes**.
 
-## IMPORTANT
-
-Because this theme using jinja gadget from server at `page.html` to count the challeng, you need to add this gadget in `CTFd/utils/initialization/__init__.py` at `def init_template_globals(app)`:
-
-```py
-def get_challenge_count():
-   from CTFd.utils.challenges import get_all_challenges
-
-   return len(get_all_challenges())
-
-app.jinja_env.globals.update(get_challenge_count=get_challenge_count)
-```
+The landing page gets the challenge count through CTFd's built-in client-side API:
+`CTFd.pages.challenges.getChallenges()`. The count reflects challenges visible to the
+current visitor, and no CTFd core files need to be modified.
 
 ## Development
 

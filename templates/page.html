@@ -29,14 +29,13 @@
               {% endif %}
             </div>
           </div>
-          <div class="hero-panel">
+          <div class="hero-panel"
+               x-data="HeroPanel"
+               data-start="{{ get_config('start') or 0 }}"
+               data-end="{{ get_config('end') or 0 }}">
             <div class="hero-panel-spotlight">              
-              <div x-data="HeroPanel"
-              data-start="{{ get_config('start') or 0 }}"
-              data-end="{{ get_config('end') or 0 }}">
-                <h2 class="eyebrow" x-text="label"></h2>
-                <div class="hero-clock" x-text="timer"></div>
-              </div>
+              <h2 class="eyebrow" x-text="label"></h2>
+              <div class="hero-clock" x-text="timer"></div>
             </div>
             <div class="hero-metrics">
               <div>
@@ -45,7 +44,7 @@
               </div>
               <div>
                 <span class="fw-bold">{% trans %}Challenges{% endtrans %}</span>
-                <strong>{{ get_challenge_count() }}</strong>
+                <strong x-text="challengeCount"></strong>
               </div>
               <div>
                 <span class="fw-bold">{% trans %}Status{% endtrans %}</span>

@@ -9,21 +9,25 @@ Alpine.data("HeroPanel", () => ({
   end: null,
   timer: "",
   label: "",
-  challengeCount: 0,
+  challengeCount: "...",
 
   async init() {
     this.start = parseInt(this.$el.dataset.start) || 0;
     this.end = parseInt(this.$el.dataset.end) || 0;
-    this.challengeCount = parseInt(this.$el.dataset.challengeCount) || 0;
+
+    try {
+      const challenges = await CTFd.pages.challenges.getChallenges();
+      this.challengeCount = Array.isArray(challenges)
+        ? challenges.length
+        : "N/A";
+    } catch {
+      this.challengeCount = "N/A";
+    }
 
     this.updateTimer();
     setInterval(() => {
       this.updateTimer();
     }, 1000);
-
-    // Optional: Update challenge count via API if needed
-    // const challenges = await CTFd.pages.challenges.getChallenges();
-    // this.challengeCount = challenges.length;
   },
 
   updateTimer() {
@@ -52,7 +56,7 @@ Alpine.data("HeroPanel", () => ({
       let h = Math.floor(target / 3600) % 24;
       let m = Math.floor((target % 3600) / 60);
       let s = target % 60;
-      this.timer = [d, h, m, s].map(v => (v < 10 ? "0" + v : v)).join(":");
+      this.timer = [d, h, m, s].map((v) => (v < 10 ? "0" + v : v)).join(":");
     }
   },
 }));
