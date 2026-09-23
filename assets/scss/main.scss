@@ -1343,6 +1343,13 @@ a:focus-visible,
   gap: 0.85rem;
 }
 
+.challenge-page .alert-stack {
+  width: fit-content;
+  max-width: 100%;
+  justify-self: center;
+  margin-top: 1.5rem;
+}
+
 .alert {
   border: var(--ctfd-brite-border) !important;
   border-radius: var(--ctfd-radius-lg) !important;
