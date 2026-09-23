@@ -159,6 +159,20 @@ main {
   }
 }
 
+.navbar {
+  transition: transform 0.5s var(--ctfd-ease);
+  z-index: 1030;
+}
+
+.navbar.is-scrolled {
+  position: sticky;
+  top: 0;
+}
+
+.navbar.is-scrolled:not(.is-revealed) {
+  transform: translateY(calc(-100% - 1rem));
+}
+
 .main-section {
   display: flex;
   flex-direction: column;
