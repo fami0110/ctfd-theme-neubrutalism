@@ -16,16 +16,19 @@ echarts.use([
 ]);
 
 export function embed(target, option) {
-  let chart = echarts.init(target);
+  let chart = echarts.getInstanceByDom(target);
+  if (!chart) {
+    chart = echarts.init(target);
+    window.addEventListener("resize", () => {
+      const activeChart = echarts.getInstanceByDom(target);
+      if (activeChart) {
+        activeChart.resize();
+      }
+    });
+  }
 
   // https://echarts.apache.org/en/api.html#echartsInstance.setOption
   // https://github.com/apache/echarts/issues/6202#issuecomment-315054637
   // https://stackoverflow.com/a/72211534
   chart.setOption(option, true);
-
-  window.addEventListener("resize", () => {
-    if (chart) {
-      chart.resize();
-    }
-  });
 }

@@ -22,7 +22,12 @@ export function getOption(mode, places, optionMerge) {
   };
 
   const teams = Object.keys(places);
-  const legendData = teams.map(team => places[team].name);
+  const legendData = teams.map((team) => places[team].name);
+  const firstSolveTime = teams
+    .flatMap((team) => places[team]["solves"])
+    .map((solve) => dayjs(solve.date).valueOf())
+    .filter(Number.isFinite)
+    .reduce((earliest, time) => Math.min(earliest, time), Infinity);
 
   option = mergeObjects(
     getCartesianChartTheme({
@@ -53,10 +58,15 @@ export function getOption(mode, places, optionMerge) {
       return [e, total_scores[i]];
     });
 
+    if (scores.length > 0 && Number.isFinite(firstSolveTime)) {
+      scores.unshift([new Date(firstSolveTime), 0]);
+    }
+
     const data = {
       name: places[teams[i]]["name"],
       type: "line",
-      showSymbol: false,
+      showSymbol: true,
+      showAllSymbol: true,
       symbol: "circle",
       symbolSize: 6,
       lineStyle: {

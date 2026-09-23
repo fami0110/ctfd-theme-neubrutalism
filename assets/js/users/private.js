@@ -12,6 +12,7 @@ Alpine.data("UserGraphs", () => ({
   solveCount: 0,
   failCount: 0,
   awardCount: 0,
+  themeChangeHandler: null,
 
   getAttemptTotal() {
     return this.solveCount + this.failCount;
@@ -37,6 +38,26 @@ Alpine.data("UserGraphs", () => ({
     return buildCategoryBreakdown(this.solves.data);
   },
 
+  async renderScoreGraph() {
+    if (!this.$refs.scoregraph || !this.solves || !this.awards) {
+      return;
+    }
+
+    const { getOption, embed } = await loadProfileChartRuntime();
+    const optionMerge = window.userScoreGraphChartOptions;
+
+    embed(
+      this.$refs.scoregraph,
+      getOption(
+        CTFd.user.id,
+        CTFd.user.name,
+        this.solves.data,
+        this.awards.data,
+        optionMerge,
+      ),
+    );
+  },
+
   async init() {
     this.solves = await CTFd.pages.users.userSolves("me");
     this.fails = await CTFd.pages.users.userFails("me");
@@ -47,19 +68,16 @@ Alpine.data("UserGraphs", () => ({
     this.awardCount = this.awards.meta.count;
 
     if (this.$refs.scoregraph) {
-      const { getOption, embed } = await loadProfileChartRuntime();
-      let optionMerge = window.userScoreGraphChartOptions;
+      this.themeChangeHandler = () => this.renderScoreGraph();
+      window.addEventListener("ctfd:themechange", this.themeChangeHandler);
+      await this.renderScoreGraph();
+    }
+  },
 
-      embed(
-        this.$refs.scoregraph,
-        getOption(
-          CTFd.user.id,
-          CTFd.user.name,
-          this.solves.data,
-          this.awards.data,
-          optionMerge,
-        ),
-      );
+  destroy() {
+    if (this.themeChangeHandler) {
+      window.removeEventListener("ctfd:themechange", this.themeChangeHandler);
+      this.themeChangeHandler = null;
     }
   },
 }));
