@@ -1105,6 +1105,19 @@ a:hover {
   box-shadow: var(--ctfd-brite-shadow);
 }
 
+.theme-switch:active {
+  background: var(--ctfd-surface-bright);
+  color: #17131a !important;
+  border: 1px solid #000;
+  box-shadow: none;
+  transform: translate(0, 0);
+}
+
+[data-bs-theme="dark"] .theme-switch:active {
+  background: var(--ctfd-text);
+  color: var(--ctfd-surface) !important;
+}
+
 @media (min-width: 992px) {
   .navbar-utility-links {
     margin-left: 0.95rem;
@@ -2414,6 +2427,26 @@ input[type="file"].form-control:hover::file-selector-button {
     background-color: color-mix(in srgb, var(--ctfd-surface-low) 40%, black);
     color: var(--ctfd-success);
   }
+}
+
+[data-bs-theme="dark"] .challenge-solved {
+  background: var(--ctfd-text) !important;
+  color: var(--ctfd-surface) !important;
+
+  .challenge-stream-copy p,
+  .challenge-stream-points,
+  .challenge-card-label {
+    color: var(--ctfd-surface) !important;
+  }
+
+  .challenge-card-status {
+    background: var(--ctfd-surface);
+    color: var(--ctfd-text);
+  }
+}
+
+[data-bs-theme="light"] .challenge-solved.is-active .challenge-card-status {
+  color: #fff !important;
 }
 
 .challenge-detail-panel {
