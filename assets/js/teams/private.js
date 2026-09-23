@@ -104,15 +104,17 @@ Alpine.data("TeamDisbandModal", () => ({
 Alpine.data("CaptainMenu", () => ({
   captain: false,
 
+  getModal(id) {
+    return Modal.getOrCreateInstance(document.getElementById(id));
+  },
+
   editTeam() {
-    this.teamEditModal = new Modal(document.getElementById("team-edit-modal"));
+    this.teamEditModal = this.getModal("team-edit-modal");
     this.teamEditModal.show();
   },
 
   chooseCaptain() {
-    this.teamCaptainModal = new Modal(
-      document.getElementById("team-captain-modal"),
-    );
+    this.teamCaptainModal = this.getModal("team-captain-modal");
     this.teamCaptainModal.show();
   },
 
@@ -128,26 +130,20 @@ Alpine.data("CaptainMenu", () => ({
         token: url,
         errors: [],
       });
-      this.teamInviteModal = new Modal(
-        document.getElementById("team-invite-modal"),
-      );
+      this.teamInviteModal = this.getModal("team-invite-modal");
       this.teamInviteModal.show();
     } else {
       Alpine.store("teamInvite", {
         token: "",
         errors: Object.values(response.errors).flat(),
       });
-      this.teamInviteModal = new Modal(
-        document.getElementById("team-invite-modal"),
-      );
+      this.teamInviteModal = this.getModal("team-invite-modal");
       this.teamInviteModal.show();
     }
   },
 
   disbandTeam() {
-    this.teamDisbandModal = new Modal(
-      document.getElementById("team-disband-modal"),
-    );
+    this.teamDisbandModal = this.getModal("team-disband-modal");
     this.teamDisbandModal.show();
   },
 }));
