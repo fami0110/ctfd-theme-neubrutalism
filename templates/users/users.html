@@ -34,10 +34,10 @@
         {% if q and field %}
           <div class="directory-filter-summary">
             <p class="directory-filter-copy">
-              {% trans %}Searching for users with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>{% endtrans %}
+              {% trans %}Searching for users with <strong>{{ field }}</strong> matching <strong>"{{ q }}"</strong>{% endtrans %}
             </p>
             <p class="directory-filter-page text-muted mb-0">
-              {% trans page=users.page, total=users.total %}Page {{ page }} of {{ total }} results{% endtrans %}
+              {% trans total=users.total %}Found {{ total }} results{% endtrans %}
             </p>
           </div>
         {% endif %}
