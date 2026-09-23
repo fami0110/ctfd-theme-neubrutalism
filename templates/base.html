@@ -51,6 +51,27 @@
 <body class="{% block body_class %}{% endblock %}">
 <div class="site-chroma site-chroma-a" aria-hidden="true"></div>
 <div class="site-chroma site-chroma-b" aria-hidden="true"></div>
+<div class="site-background" aria-hidden="true">
+  <svg class="site-background-svg" viewBox="0 0 1440 980" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <pattern id="site-grid" width="36" height="36" patternUnits="userSpaceOnUse">
+        <path d="M 36 0 L 0 0 0 36" class="site-grid-line" />
+      </pattern>
+    </defs>
+
+    <g class="site-grid-layer">
+      <rect x="-720" y="-490" width="2880" height="1960" fill="url(#site-grid)" />
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        from="0 0"
+        to="36 36"
+        dur="20s"
+        repeatCount="indefinite"
+      />
+    </g>
+  </svg>
+</div>
 
 <main role="main">
   {% include "components/navbar.html" %}

@@ -75,6 +75,7 @@
   --ctfd-chart-outline: rgb(247 240 230 / 0.18);
   --ctfd-chart-grid: rgb(247 240 230 / 0.12);
   --ctfd-chart-surface: #191b22;
+  --ctfd-ornament-ink: #f7f0e6;
   --bs-body-bg: var(--ctfd-surface);
   --bs-body-color: var(--ctfd-text);
   --bs-emphasis-color: var(--ctfd-text);
@@ -114,6 +115,7 @@
   --ctfd-brite-border: 2px solid #000;
   --ctfd-brite-shadow: 3px 3px 0 0 #000;
   --ctfd-chart-surface: #fffdf8;
+  --ctfd-ornament-ink: #17131a;
   --bs-body-bg: var(--ctfd-surface);
   --bs-body-color: var(--ctfd-text);
   --bs-emphasis-color: var(--ctfd-text);
@@ -136,6 +138,9 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
   min-height: 100vh;
   background: var(--bs-body-bg);
   color: var(--bs-body-color);
@@ -147,7 +152,35 @@ body {
   display: none;
 }
 
+.site-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.site-background-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.site-grid-line {
+  fill: none;
+  stroke: var(--ctfd-ornament-ink);
+  stroke-width: 0.9;
+  opacity: 0.2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-grid-layer animateTransform {
+    display: none;
+  }
+}
+
 main {
+  position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -352,7 +385,7 @@ a:hover {
     min-width: 100%;
     padding-bottom: 1.5rem;
     margin-bottom: 8px;
-    border-bottom: 1px solid var(--ctfd-outline);
+    border-bottom: 2px solid color-mix(in srgb, var(--ctfd-text) 42%, transparent);
     font-size: clamp(2.75rem, 7vw, 5.6rem);
   }
 
@@ -400,7 +433,7 @@ a:hover {
   gap: 1.5rem;
   align-content: end;
   padding: 0 0 0 clamp(1.25rem, 2vw, 2rem);
-  border-left: 1px solid var(--ctfd-outline);
+  border-left: 2px solid color-mix(in srgb, var(--ctfd-text) 42%, transparent);
 
   .hero-panel-spotlight {
     h2 {
@@ -430,7 +463,7 @@ a:hover {
       display: grid;
       gap: 0.25rem;
       padding: 0.95rem 0 0;
-      border-top: 1px solid var(--ctfd-outline);
+      border-top: 2px solid color-mix(in srgb, var(--ctfd-text) 42%, transparent);
     }
     
     span {
@@ -1837,7 +1870,7 @@ input[type="file"].form-control:hover::file-selector-button {
   align-content: start;
   min-height: 0;
   padding: 0.95rem 1rem !important;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   border-radius: var(--ctfd-radius);
   background: transparent;
   text-align: left;
@@ -1853,9 +1886,14 @@ input[type="file"].form-control:hover::file-selector-button {
 }
 
 .settings-nav .nav-link.active {
-  border-color: var(--ctfd-outline);
+  border-color: #000;
   background: color-mix(in srgb, var(--ctfd-surface-bright) 72%, white);
   color: var(--ctfd-text) !important;
+}
+
+.settings-nav .nav-link:hover,
+.settings-nav .nav-link:focus-visible {
+  border-color: #000;
 }
 
 .settings-content .tab-content {
