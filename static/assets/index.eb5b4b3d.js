@@ -1,0 +1,1 @@
+import{u as n,g as t,i as l,a as o,b as r,c,d,e as f}from"./echarts.dc4e3021.js";n([o,r,c,d,f]);function u(s,e){let i=t(s);i||(i=l(s),window.addEventListener("resize",()=>{const a=t(s);a&&a.resize()})),i.setOption(e,!0)}export{u as embed};
