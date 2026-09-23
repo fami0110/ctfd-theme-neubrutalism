@@ -11,9 +11,15 @@
               <p class="lede">{{ Configs.ctf_description | safe }}</p>
             </div>
             <div class="hero-actions">
-              <a class="btn btn-primary" href="{{ url_for('challenges.listing') }}">
-                {% trans %}Open Challenges{% endtrans %}
-              </a>
+              {% if authed() %}
+                <a class="btn btn-primary" href="{{ url_for('challenges.listing') }}">
+                  {% trans %}Open Challenges{% endtrans %}
+                </a>
+              {% else %}
+                <a class="btn btn-primary" href="{{ url_for('auth.login') }}">
+                  {% trans %}Login{% endtrans %}
+                </a>
+              {% endif %}
               {% if authed() %}
                 <a class="btn btn-secondary" href="{{ url_for('scoreboard.listing') }}">
                   {% trans %}View Scoreboard{% endtrans %}
@@ -44,7 +50,11 @@
               </div>
               <div>
                 <span class="fw-bold">{% trans %}Challenges{% endtrans %}</span>
-                <strong x-text="challengeCount"></strong>
+                {% if authed() %}
+                  <strong x-text="challengeCount"></strong>
+                {% else %}
+                  <strong>{% trans %}Login to see more{% endtrans %}</strong>
+                {% endif %}
               </div>
               <div>
                 <span class="fw-bold">{% trans %}Status{% endtrans %}</span>
