@@ -3,7 +3,7 @@
 
   img {
     max-width: 100%;
-    border-radius: 1rem;
+    border-radius: var(--ctfd-radius-lg);
   }
 }
 
@@ -12,6 +12,6 @@
   max-width: 100%;
   overflow: auto;
   padding: 0.4rem 0.55rem;
-  border-radius: 0.75rem;
+  border-radius: var(--ctfd-radius);
   background: rgb(0 0 0 / 0.15);
 }
