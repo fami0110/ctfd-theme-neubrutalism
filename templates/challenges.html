@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block body_class %}challenge-page{% endblock %}
+
 {% block content %}
   <div
     x-data="ChallengeBoard"
@@ -36,13 +38,28 @@
               <p class="text-muted mb-0">{% trans %}Challenges will appear here once categories and tasks are published.{% endtrans %}</p>
             </div>
 
-            <div class="challenge-workspace" x-show="getCategories().length">
-              <aside class="challenge-category-rail" aria-label="{% trans %}Challenge categories{% endtrans %}">
+             <div
+               class="challenge-workspace"
+               :class="{ 'categories-collapsed': categoriesCollapsed }"
+               x-show="getCategories().length"
+             >
+               <aside class="challenge-category-rail" :class="{ 'is-collapsed': categoriesCollapsed }" aria-label="{% trans %}Challenge categories{% endtrans %}">
                 <div class="challenge-column-head">
-                  <p class="eyebrow">{% trans %}Categories{% endtrans %}</p>
-                </div>
+                   <p class="eyebrow" x-show="!categoriesCollapsed">{% trans %}Categories{% endtrans %}</p>
+                   <button
+                     type="button"
+                     class="challenge-category-toggle"
+                     @click="categoriesCollapsed = !categoriesCollapsed"
+                     :aria-expanded="!categoriesCollapsed"
+                     :aria-label="categoriesCollapsed ? '{{ _('Expand categories') }}' : '{{ _('Collapse categories') }}'"
+                   >
+                     <i class="fas" :class="categoriesCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'" aria-hidden="true"></i>
+                   </button>
+                 </div>
 
-                <div class="challenge-category-list" aria-label="{% trans %}Challenge category filter{% endtrans %}">
+                 <div class="challenge-category-collapsed-line" x-show="categoriesCollapsed" aria-hidden="true"></div>
+
+                 <div class="challenge-category-list" x-show="!categoriesCollapsed" aria-label="{% trans %}Challenge category filter{% endtrans %}">
                   <button
                     type="button"
                     class="challenge-category-filter"

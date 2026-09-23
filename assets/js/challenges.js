@@ -334,6 +334,8 @@ Alpine.data("ChallengeBoard", () => ({
   challenge: null,
   activeCategory: null,
   unsolvedOnly: false,
+  categoriesCollapsed: false,
+  viewportResizeHandler: null,
   hotkeysEnabled: true,
   currentChallengeId: null,
 
@@ -351,6 +353,12 @@ Alpine.data("ChallengeBoard", () => ({
     this.challenges = await CTFd.pages.challenges.getChallenges();
     this.initializeCategory();
     this.loaded = true;
+    this.viewportResizeHandler = () => {
+      if (window.innerWidth < 1280) {
+        this.categoriesCollapsed = false;
+      }
+    };
+    window.addEventListener("resize", this.viewportResizeHandler);
     window.addEventListener("keydown", this.handleKeydown.bind(this));
 
     if (window.location.hash) {
@@ -361,6 +369,13 @@ Alpine.data("ChallengeBoard", () => ({
         let id = pieces[1];
         await this.loadChallenge(id);
       }
+    }
+  },
+
+  destroy() {
+    if (this.viewportResizeHandler) {
+      window.removeEventListener("resize", this.viewportResizeHandler);
+      this.viewportResizeHandler = null;
     }
   },
 
