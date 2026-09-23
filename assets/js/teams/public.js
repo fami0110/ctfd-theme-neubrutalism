@@ -13,6 +13,7 @@ Alpine.data("TeamGraphs", () => ({
   solveCount: 0,
   failCount: 0,
   awardCount: 0,
+  themeChangeHandler: null,
 
   getAttemptTotal() {
     return this.solveCount + this.failCount;
@@ -38,6 +39,26 @@ Alpine.data("TeamGraphs", () => ({
     return buildCategoryBreakdown(this.solves.data);
   },
 
+  async renderScoreGraph() {
+    if (!this.$refs.scoregraph || !this.solves || !this.awards) {
+      return;
+    }
+
+    const { getOption, embed } = await loadProfileChartRuntime();
+    const optionMerge = window.teamScoreGraphChartOptions;
+
+    embed(
+      this.$refs.scoregraph,
+      getOption(
+        window.TEAM.id,
+        window.TEAM.name,
+        this.solves.data,
+        this.awards.data,
+        optionMerge,
+      ),
+    );
+  },
+
   async init() {
     this.solves = await CTFd.pages.teams.teamSolves(window.TEAM.id);
     this.fails = await CTFd.pages.teams.teamFails(window.TEAM.id);
@@ -48,19 +69,16 @@ Alpine.data("TeamGraphs", () => ({
     this.awardCount = this.awards.meta.count;
 
     if (this.$refs.scoregraph) {
-      const { getOption, embed } = await loadProfileChartRuntime();
-      let optionMerge = window.teamScoreGraphChartOptions;
+      this.themeChangeHandler = () => this.renderScoreGraph();
+      window.addEventListener("ctfd:themechange", this.themeChangeHandler);
+      await this.renderScoreGraph();
+    }
+  },
 
-      embed(
-        this.$refs.scoregraph,
-        getOption(
-          window.TEAM.id,
-          window.TEAM.name,
-          this.solves.data,
-          this.awards.data,
-          optionMerge,
-        ),
-      );
+  destroy() {
+    if (this.themeChangeHandler) {
+      window.removeEventListener("ctfd:themechange", this.themeChangeHandler);
+      this.themeChangeHandler = null;
     }
   },
 }));
