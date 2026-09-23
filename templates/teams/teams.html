@@ -28,7 +28,7 @@
 
         {% with form = Forms.teams.PublicTeamSearchForm(field=field, q=q) %}
           <form method="GET" class="page-panel directory-search-form">
-            <div>
+            <div class="directory-field-select">
               {{ form.field(class="form-select w-100") }}
             </div>
 
@@ -107,12 +107,11 @@
           </tbody>
         </table>
         </div>
-        </div>
 
     {% if teams.pages > 1 %}
       {% set page_start = [1, teams.page - 2] | max %}
       {% set page_end = [teams.pages, teams.page + 2] | min %}
-      <nav class="page-panel directory-pagination" aria-label="{% trans %}Teams pagination{% endtrans %}">
+      <nav class="directory-pagination" aria-label="{% trans %}Teams pagination{% endtrans %}">
         <p class="directory-pagination-summary">
           {% trans page=teams.page, total=teams.pages %}Page {{ page }} of {{ total }}{% endtrans %}
         </p>
@@ -154,6 +153,7 @@
         </div>
       </nav>
     {% endif %}
+        </div>
       </div>
     </div>
   </section>

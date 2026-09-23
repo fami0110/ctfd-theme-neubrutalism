@@ -13,22 +13,9 @@
   <section class="page-section">
     <div class="container">
       <div class="directory-shell">
-        {% if q and field %}
-          <div class="page-panel directory-search-summary">
-            <p class="eyebrow">{% trans %}Filtered results{% endtrans %}</p>
-            <h2>{% trans %}Users matching your search{% endtrans %}</h2>
-            <p class="text-muted">
-              {% trans %}Searching for users with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>{% endtrans %}
-            </p>
-            <p class="text-muted mb-0">
-              {% trans page=users.page, total=users.total %}Page {{ page }} of {{ total }} results{% endtrans %}
-            </p>
-          </div>
-        {% endif %}
-
         {% with form = Forms.users.PublicUserSearchForm(field=field, q=q) %}
           <form method="GET" class="page-panel directory-search-form">
-            <div>
+            <div class="directory-field-select">
               {{ form.field(class="form-select w-100") }}
             </div>
             <div>
@@ -44,6 +31,16 @@
         {% endwith %}
 
         <div class="page-panel directory-table-panel">
+        {% if q and field %}
+          <div class="directory-filter-summary">
+            <p class="directory-filter-copy">
+              {% trans %}Searching for users with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>{% endtrans %}
+            </p>
+            <p class="directory-filter-page text-muted mb-0">
+              {% trans page=users.page, total=users.total %}Page {{ page }} of {{ total }} results{% endtrans %}
+            </p>
+          </div>
+        {% endif %}
         <div class="table-scroll-shell table-scroll-shell-directory">
         <table class="table table-striped align-middle">
           <thead>
@@ -104,12 +101,11 @@
           </tbody>
         </table>
         </div>
-        </div>
 
     {% if users.pages > 1 %}
       {% set page_start = [1, users.page - 2] | max %}
       {% set page_end = [users.pages, users.page + 2] | min %}
-      <nav class="page-panel directory-pagination" aria-label="{% trans %}Users pagination{% endtrans %}">
+      <nav class="directory-pagination" aria-label="{% trans %}Users pagination{% endtrans %}">
         <p class="directory-pagination-summary">
           {% trans page=users.page, total=users.pages %}Page {{ page }} of {{ total }}{% endtrans %}
         </p>
@@ -151,6 +147,7 @@
         </div>
       </nav>
     {% endif %}
+        </div>
       </div>
     </div>
   </section>
