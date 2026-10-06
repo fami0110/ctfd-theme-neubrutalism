@@ -1,4 +1,5 @@
-<nav class="navbar navbar-expand-lg fixed-top">
+{% set current_endpoint = request.endpoint or "" %}
+<nav class="navbar navbar-expand-lg fixed-top" aria-label="{% trans %}Primary navigation{% endtrans %}">
   <div class="container-fluid">
     <a href="{{ url_for('views.static_html', route='/') }}" class="navbar-brand">
       <span class="brand-mark" aria-hidden="true"></span>
@@ -30,7 +31,7 @@
       <ul class="navbar-nav me-auto navbar-primary-links">
         {% for page in Plugins.user_menu_pages %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ page.route }}" {% if page.link_target %}target="{{ page.link_target }}"{% if page.link_target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>
+            <a class="nav-link{% if request.path == page.route %} active{% endif %}" href="{{ page.route }}"{% if request.path == page.route %} aria-current="page"{% endif %} {% if page.link_target %}target="{{ page.link_target }}"{% if page.link_target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>
               {{ page.title }}
             </a>
           </li>
@@ -38,14 +39,14 @@
 
         {% if Configs.account_visibility != 'admins' %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('users.listing') }}">
+            <a class="nav-link{% if current_endpoint in ['users.listing', 'users.public'] %} active{% endif %}" href="{{ url_for('users.listing') }}"{% if current_endpoint in ['users.listing', 'users.public'] %} aria-current="page"{% endif %}>
               {% trans %}Users{% endtrans %}
             </a>
           </li>
 
           {% if Configs.user_mode == 'teams' %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('teams.listing') }}">
+              <a class="nav-link{% if current_endpoint in ['teams.listing', 'teams.public'] %} active{% endif %}" href="{{ url_for('teams.listing') }}"{% if current_endpoint in ['teams.listing', 'teams.public'] %} aria-current="page"{% endif %}>
                 {% trans %}Teams{% endtrans %}
               </a>
             </li>
@@ -54,14 +55,14 @@
 
         {% if Configs.account_visibility != 'admins' and Configs.score_visibility != 'admins' %}
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('scoreboard.listing') }}">
+            <a class="nav-link{% if current_endpoint.startswith('scoreboard.') %} active{% endif %}" href="{{ url_for('scoreboard.listing') }}"{% if current_endpoint.startswith('scoreboard.') %} aria-current="page"{% endif %}>
               {% trans %}Scoreboard{% endtrans %}
             </a>
           </li>
         {% endif %}
 
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('challenges.listing') }}">
+          <a class="nav-link{% if current_endpoint.startswith('challenges.') %} active{% endif %}" href="{{ url_for('challenges.listing') }}"{% if current_endpoint.startswith('challenges.') %} aria-current="page"{% endif %}>
             {% trans %}Challenges{% endtrans %}
           </a>
         </li>
@@ -87,7 +88,7 @@
           {% endif %}
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('views.notifications') }}" aria-label="{% trans %}Notifications{% endtrans %}">
+            <a class="nav-link{% if current_endpoint == 'views.notifications' %} active{% endif %}" href="{{ url_for('views.notifications') }}" aria-label="{% trans %}Notifications{% endtrans %}"{% if current_endpoint == 'views.notifications' %} aria-current="page"{% endif %}>
               <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans %}Notifications{% endtrans %}">
                 <i class="fas fa-bell d-none d-lg-inline d-xl-none"></i>
               </span>
@@ -101,7 +102,7 @@
 
           {% if Configs.user_mode == "teams" %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('teams.private') }}" aria-label="{% trans %}Team{% endtrans %}">
+              <a class="nav-link{% if current_endpoint == 'teams.private' %} active{% endif %}" href="{{ url_for('teams.private') }}" aria-label="{% trans %}Team{% endtrans %}"{% if current_endpoint == 'teams.private' %} aria-current="page"{% endif %}>
                 <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans %}Team{% endtrans %}">
                   <i class="fas fa-users d-none d-lg-inline d-xl-none"></i>
                 </span>
@@ -111,10 +112,84 @@
                 </span>
               </a>
             </li>
+
+            <li class="nav-item dropdown active-instances-nav" x-data="ActiveInstances">
+              <button
+                  class="nav-link dropdown-toggle utility-button"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  data-bs-auto-close="outside"
+                  @click="load(true)"
+                  aria-expanded="false"
+                  aria-label="{% trans %}Active instances{% endtrans %}"
+              >
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans %}Active instances{% endtrans %}">
+                  <i class="fas fa-cubes d-none d-lg-inline d-xl-none"></i>
+                </span>
+                <span class="d-md-inline d-lg-none d-xl-inline">
+                  <i class="fas fa-cubes pe-1"></i>
+                  {% trans %}Instances{% endtrans %}
+                  <span x-show="instances.length > 0" x-text="instances.length" class="badge rounded-pill bg-info active-instances-count"></span>
+                </span>
+              </button>
+              <div class="dropdown-menu dropdown-menu-end active-instances-menu">
+                <div x-show="loading && !loaded" class="active-instances-status" x-cloak>{% trans %}Loading instances...{% endtrans %}</div>
+                <div x-show="!loading && failed && instances.length === 0" class="active-instances-status" x-cloak>{% trans %}Instances are temporarily unavailable.{% endtrans %}</div>
+                <div x-show="!loading && !failed && loaded && instances.length === 0" class="active-instances-status" x-cloak>{% trans %}No active instances.{% endtrans %}</div>
+                <template x-for="instance in instances" :key="instance.instance_id">
+                  <div class="dropdown-item active-instance-item">
+                    <a class="active-instance-link" :href="challengeUrl(instance)">
+                      <strong x-text="instance.challenge_name"></strong>
+                      <small>
+                        <span x-text="instance.status"></span>
+                        <span aria-hidden="true"> · </span>
+                        <span x-text="expiry(instance.expires_at)"></span>
+                      </small>
+                    </a>
+                    <div class="active-instance-actions">
+                      <button
+                          type="button"
+                          class="active-instance-control"
+                          :disabled="isMutating()"
+                          :aria-label="'Reset ' + instance.challenge_name + ' for the team'"
+                          @click.stop.prevent="mutate(instance, 'reset')"
+                      >
+                        <span x-show="!isBusy(instance, 'reset')">{% trans %}Reset{% endtrans %}</span>
+                        <span x-show="isBusy(instance, 'reset')" x-cloak>{% trans %}Resetting…{% endtrans %}</span>
+                      </button>
+                      <button
+                          type="button"
+                          class="active-instance-control active-instance-control-danger"
+                          :disabled="isMutating()"
+                          :aria-label="'Stop ' + instance.challenge_name + ' for the team'"
+                          @click.stop.prevent="mutate(instance, 'stop')"
+                      >
+                        <span x-show="!isBusy(instance, 'stop')">{% trans %}Stop{% endtrans %}</span>
+                        <span x-show="isBusy(instance, 'stop')" x-cloak>{% trans %}Stopping…{% endtrans %}</span>
+                      </button>
+                    </div>
+                    <p
+                        class="active-instance-feedback"
+                        :class="feedbackClass(instance)"
+                        x-show="feedbackFor(instance)"
+                        x-text="feedbackFor(instance)"
+                        role="status"
+                        aria-live="polite"
+                        x-cloak
+                    ></p>
+                  </div>
+                </template>
+                <div class="active-instances-footer" x-show="instances.length > 0" x-cloak>
+                  <span x-show="!loading && failed">{% trans %}Refresh failed; retrying...{% endtrans %}</span>
+                  <span x-show="!loading && !failed">{% trans %}Updates automatically{% endtrans %}</span>
+                  <span x-show="loading" x-cloak>{% trans %}Refreshing...{% endtrans %}</span>
+                </div>
+              </div>
+            </li>
           {% endif %}
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('users.private') }}" aria-label="{% trans %}Profile{% endtrans %}">
+            <a class="nav-link{% if current_endpoint == 'users.private' %} active{% endif %}" href="{{ url_for('users.private') }}" aria-label="{% trans %}Profile{% endtrans %}"{% if current_endpoint == 'users.private' %} aria-current="page"{% endif %}>
               <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans %}Profile{% endtrans %}">
                 <i class="fas fa-user-circle d-none d-lg-inline d-xl-none"></i>
               </span>
@@ -126,7 +201,7 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('views.settings') }}" aria-label="{% trans %}Settings{% endtrans %}">
+            <a class="nav-link{% if current_endpoint == 'views.settings' %} active{% endif %}" href="{{ url_for('views.settings') }}" aria-label="{% trans %}Settings{% endtrans %}"{% if current_endpoint == 'views.settings' %} aria-current="page"{% endif %}>
               <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans %}Settings{% endtrans %}">
                 <i class="fas fa-cogs d-none d-lg-inline d-xl-none"></i>
               </span>
@@ -153,7 +228,7 @@
 
           {% if registration_visible() %}
             <li class="nav-item">
-              <a class="nav-link" href="{{ url_for('auth.register') }}" aria-label="{% trans %}Register{% endtrans %}">
+              <a class="nav-link{% if current_endpoint == 'auth.register' %} active{% endif %}" href="{{ url_for('auth.register') }}" aria-label="{% trans %}Register{% endtrans %}"{% if current_endpoint == 'auth.register' %} aria-current="page"{% endif %}>
                 <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans %}Register{% endtrans %}">
                   <i class="fas fa-user-plus d-none d-lg-inline d-xl-none"></i>
                 </span>
@@ -166,7 +241,7 @@
           {% endif %}
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('auth.login') }}" aria-label="{% trans %}Login{% endtrans %}">
+            <a class="nav-link{% if current_endpoint == 'auth.login' %} active{% endif %}" href="{{ url_for('auth.login') }}" aria-label="{% trans %}Login{% endtrans %}"{% if current_endpoint == 'auth.login' %} aria-current="page"{% endif %}>
               <span data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans %}Login{% endtrans %}">
                 <i class="fas fa-sign-in-alt d-none d-lg-inline d-xl-none"></i>
               </span>

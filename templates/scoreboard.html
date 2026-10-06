@@ -19,7 +19,7 @@
           <div class="scoreboard-section-head">
             <div>
               <p class="eyebrow">{% trans %}Live graph{% endtrans %}</p>
-              <h2>{% trans %}Score over time{% endtrans %}</h2>
+              <h2>{% trans %}Score progression{% endtrans %}</h2>
             </div>
           </div>
 
@@ -50,7 +50,7 @@
               </div>
             </template>
 
-            <div class="table-scroll-shell table-scroll-shell-scoreboard" x-show="standings.length">
+            <div class="table-scroll-shell table-scroll-shell-scoreboard" x-show="standings.length" tabindex="0" role="region" aria-label="{% trans %}Scoreboard table{% endtrans %}" data-scroll-label="{% trans %}Swipe or scroll to see all columns{% endtrans %}">
               <table class="table table-striped align-middle">
                 <thead>
                 <tr>

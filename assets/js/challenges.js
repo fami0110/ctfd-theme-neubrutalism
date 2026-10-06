@@ -81,6 +81,11 @@ Alpine.data("Challenge", () => ({
   id: null,
   next_id: null,
   submission: "",
+  aiLink: "",
+  solverScript: null,
+  submissionFormError: "",
+  submitting: false,
+  requiresSubmissionEvidence: true,
   solves: [],
   submissions: [],
   solution: null,
@@ -106,6 +111,8 @@ Alpine.data("Challenge", () => ({
       ...this.labels,
       ...this.$el.dataset,
     };
+    this.requiresSubmissionEvidence =
+      this.$el.dataset.requiresSubmissionEvidence !== "false";
     highlight();
   },
 
@@ -217,19 +224,108 @@ Alpine.data("Challenge", () => ({
     }, 2000);
   },
 
-  async submitChallenge() {
-    this.response = await CTFd.pages.challenge.submitChallenge(
-      this.id,
-      this.submission,
-    );
+  validateSubmissionEvidence() {
+    this.submissionFormError = "";
+    if (!this.submission.trim()) {
+      this.submissionFormError = "A flag is required.";
+      return false;
+    }
+    if (!this.requiresSubmissionEvidence) {
+      return true;
+    }
+    const fields = [
+      { value: this.aiLink, label: "Link AI" },
+    ];
+    for (const field of fields) {
+      const value = (field.value || "").trim();
+      if (!value) {
+        this.submissionFormError = field.label + " is required.";
+        return false;
+      }
+      try {
+        const parsed = new URL(value);
+        if (
+          !parsed.hostname ||
+          !["http:", "https:"].includes(parsed.protocol)
+        ) {
+          throw new Error("Invalid evidence link");
+        }
+      } catch (error) {
+        this.submissionFormError = field.label + " must be a valid URL.";
+        return false;
+      }
+    }
+    if (!this.solverScript) {
+      this.submissionFormError = "Solver Script is required.";
+      return false;
+    }
+    if (this.solverScript.size <= 0) {
+      this.submissionFormError = "Solver Script is empty.";
+      return false;
+    }
+    if (this.solverScript.size > 4 * 1024 * 1024) {
+      this.submissionFormError = "Solver Script is too large.";
+      return false;
+    }
+    this.aiLink = this.aiLink.trim();
+    return true;
+  },
 
-    // Challenges page might be visible to anonymous users, redirect to login on submit
-    if (this.response.data.status === "authentication_required") {
-      window.location = `${CTFd.config.urlRoot}/login?next=${CTFd.config.urlRoot}${window.location.pathname}${window.location.hash}`;
+  async submitChallenge() {
+    if (this.submitting || !this.validateSubmissionEvidence()) {
       return;
     }
+    this.submitting = true;
+    this.response = null;
+    try {
+      const body = new FormData();
+      body.append("challenge_id", String(this.id));
+      body.append("submission", this.submission);
+      // CTFd validates multipart/form-data CSRF tokens in the form body.
+      body.append("nonce", CTFd.config.csrfNonce);
+      if (this.aiLink.trim()) {
+        body.append("ai_link", this.aiLink.trim());
+      }
+      if (this.solverScript) {
+        body.append("solver_script", this.solverScript, this.solverScript.name);
+      }
 
-    await this.renderSubmissionResponse();
+      const httpResponse = await window.fetch(
+        `${CTFd.config.urlRoot}/api/v1/challenges/attempt`,
+        {
+        method: "POST",
+          body,
+          credentials: "same-origin",
+          headers: {
+            Accept: "application/json",
+            "CSRF-Token": CTFd.config.csrfNonce,
+          },
+        },
+      );
+      const payload = await httpResponse.json();
+      if (!payload.data) {
+        const errors = payload.errors || {};
+        const messages = Object.values(errors).flat();
+        this.submissionFormError =
+          messages.join(" ") ||
+          "The submission could not be accepted. Check the required fields.";
+        return;
+      }
+      this.response = payload;
+
+      // Challenges page might be visible to anonymous users, redirect to login on submit
+      if (this.response.data.status === "authentication_required") {
+        window.location = `${CTFd.config.urlRoot}/login?next=${CTFd.config.urlRoot}${window.location.pathname}${window.location.hash}`;
+        return;
+      }
+
+      await this.renderSubmissionResponse();
+    } catch (error) {
+      this.submissionFormError =
+        "The submission could not be sent. Please try again.";
+    } finally {
+      this.submitting = false;
+    }
   },
 
   async renderSubmissionResponse() {

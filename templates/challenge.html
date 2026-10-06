@@ -17,6 +17,7 @@
   data-response-incorrect-note="{{ _('That flag was not accepted. Check formatting and try again.') }}"
   data-response-paused-note="{{ _('Submissions are currently paused for this challenge.') }}"
   data-response-ratelimited-note="{{ _('Slow down and try again in a moment.') }}"
+  data-requires-submission-evidence="{{ 'false' if is_admin() else 'true' }}"
 >
   <div class="challenge-detail-header">
     <div class="challenge-detail-topbar">
@@ -182,12 +183,75 @@
             <button
                 id="challenge-submit"
                 class="challenge-submit btn btn-primary w-100 h-100" type="submit"
+                :disabled="submitting"
                 @click.debounce.500ms="submitChallenge()"
             >
-              {% trans %}Submit{% endtrans %}
+              <span x-show="!submitting">{% trans %}Submit{% endtrans %}</span>
+              <span x-show="submitting">{% trans %}Checking...{% endtrans %}</span>
             </button>
           {% endblock %}
         </div>
+      </div>
+
+      <div class="challenge-submission-evidence">
+        <div class="challenge-evidence-grid">
+          <div class="challenge-evidence-field">
+            <label for="challenge-ai-link">
+              {% trans %}Link AI{% endtrans %}
+            </label>
+            <input
+              id="challenge-ai-link"
+              class="challenge-input form-control"
+              type="url"
+              name="ai_link"
+              maxlength="2048"
+              autocomplete="url"
+              :required="requiresSubmissionEvidence"
+              x-model="aiLink"
+              @input="submissionFormError = ''"
+              placeholder="https://..."
+            >
+          </div>
+          <div class="challenge-evidence-field">
+            <label for="challenge-solver-script">
+              {% trans %}Solver Script{% endtrans %}
+            </label>
+            <div class="challenge-file-picker">
+              <input
+                id="challenge-solver-script"
+                class="challenge-file-input"
+                type="file"
+                name="solver_script"
+                :required="requiresSubmissionEvidence"
+                aria-describedby="challenge-solver-script-name"
+                @change="solverScript = $event.target.files[0] || null; submissionFormError = ''"
+              >
+              <label class="challenge-file-trigger" for="challenge-solver-script">
+                {% trans %}Choose file{% endtrans %}
+              </label>
+              <span
+                id="challenge-solver-script-name"
+                class="challenge-file-name"
+                :title="solverScript ? solverScript.name : $el.dataset.emptyLabel"
+                :class="{ 'is-empty': !solverScript }"
+                data-empty-label="{{ _('No file') }}"
+              >
+                <span
+                  class="challenge-file-name-text"
+                  data-empty-label="{{ _('No file') }}"
+                  x-text="solverScript ? solverScript.name : $el.dataset.emptyLabel"
+                ></span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div
+          class="challenge-submission-error"
+          x-show="submissionFormError"
+          x-cloak
+          role="alert"
+          x-text="submissionFormError"
+        ></div>
       </div>
 
       <div class="challenge-response-region" :class="{ 'has-response': !!response }">
@@ -301,7 +365,7 @@
         <div class="challenge-secondary-body">
           <div class="challenge-secondary-status" x-show="submissionsLoading" x-text="labels.loadingLabel"></div>
           <div class="challenge-secondary-status" x-show="submissionsLoaded && submissions.length === 0" x-text="labels.emptySubmissionsLabel"></div>
-          <div class="challenge-table-wrap">
+          <div class="challenge-table-wrap table-scroll-shell" tabindex="0" role="region" aria-label="{% trans %}Your submissions table{% endtrans %}" data-scroll-label="{% trans %}Swipe or scroll to see all columns{% endtrans %}">
           <table class="table table-striped align-middle text-center">
             <thead x-show="submissions.length > 0">
             <tr>
@@ -341,7 +405,7 @@
         <div class="challenge-secondary-body">
           <div class="challenge-secondary-status" x-show="solvesLoading" x-text="labels.loadingLabel"></div>
           <div class="challenge-secondary-status" x-show="solvesLoaded && solves.length === 0" x-text="labels.emptySolvesLabel"></div>
-          <div class="challenge-table-wrap">
+          <div class="challenge-table-wrap table-scroll-shell" tabindex="0" role="region" aria-label="{% trans %}Challenge solves table{% endtrans %}" data-scroll-label="{% trans %}Swipe or scroll to see all columns{% endtrans %}">
           <table class="table table-striped align-middle text-center">
             <thead x-show="solves.length > 0">
             <tr>

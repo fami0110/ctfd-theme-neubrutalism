@@ -30,6 +30,19 @@
 
 .table-scroll-shell {
   overflow-x: auto;
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+
+  &:focus-visible {
+    outline: 3px solid var(--ctfd-primary);
+    outline-offset: 3px;
+  }
+
+  &::before {
+    display: none;
+    content: attr(data-scroll-label);
+  }
   
   .table {
     min-width: 34rem;
@@ -64,4 +77,19 @@
 
 .table-scroll-shell .table-responsive {
   border-radius: inherit;
+}
+
+@media (max-width: 767px) {
+  .table-scroll-shell::before {
+    position: sticky;
+    left: 0;
+    display: block;
+    width: max-content;
+    max-width: calc(100vw - 4rem);
+    margin: 0 0 0.55rem;
+    color: var(--ctfd-text-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
 }
