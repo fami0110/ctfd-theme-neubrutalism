@@ -2408,7 +2408,8 @@ b > .text-danger {
 }
 
 [data-bs-theme="dark"] .challenge-category-filter.is-active {
-  background: var(--ctfd-surface-high);
+  background: var(--ctfd-text);
+  color: var(--ctfd-surface);
 }
 
 [data-bs-theme="dark"] .challenge-quick-toggle {
@@ -2423,7 +2424,8 @@ b > .text-danger {
 }
 
 [data-bs-theme="dark"] .challenge-quick-toggle.is-active {
-  background: var(--ctfd-surface-high);
+  background: var(--ctfd-text);
+  color: var(--ctfd-surface);
 }
 
 [data-bs-theme="dark"] .challenge-category-bar {
