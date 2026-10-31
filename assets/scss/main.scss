@@ -4086,6 +4086,11 @@ b > .text-danger {
   transform: none;
 }
 
+[data-bs-theme="dark"] .navbar .nav-link.active {
+  box-shadow: none;
+  transform: none;
+}
+
 [data-bs-theme="light"] .footer-shell,
 [data-bs-theme="light"] .footer-shell .footer-kicker,
 [data-bs-theme="light"] .footer-shell .footer-note,
