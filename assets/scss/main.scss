@@ -4086,9 +4086,21 @@ b > .text-danger {
   transform: none;
 }
 
+[data-bs-theme="light"] .navbar .nav-link.active:hover,
+[data-bs-theme="light"] .navbar .nav-link.active:focus {
+  box-shadow: var(--ctfd-brite-shadow-hover);
+  transform: translate(-3px, -3px);
+}
+
 [data-bs-theme="dark"] .navbar .nav-link.active {
   box-shadow: none;
   transform: none;
+}
+
+[data-bs-theme="dark"] .navbar .nav-link.active:hover,
+[data-bs-theme="dark"] .navbar .nav-link.active:focus {
+  box-shadow: var(--ctfd-brite-shadow-hover);
+  transform: translate(-3px, -3px);
 }
 
 [data-bs-theme="light"] .footer-shell,
