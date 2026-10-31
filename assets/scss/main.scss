@@ -4079,7 +4079,7 @@ b > .text-danger {
 }
 
 [data-bs-theme="light"] .navbar .nav-link.active {
-  background: var(--ctfd-primary);
+  background: #01ead5;
   color: #111 !important;
   border: 3px solid #000;
   box-shadow: none;
@@ -4088,6 +4088,7 @@ b > .text-danger {
 
 [data-bs-theme="light"] .navbar .nav-link.active:hover,
 [data-bs-theme="light"] .navbar .nav-link.active:focus {
+  background: var(--ctfd-primary);
   box-shadow: var(--ctfd-brite-shadow-hover);
   transform: translate(-3px, -3px);
 }
