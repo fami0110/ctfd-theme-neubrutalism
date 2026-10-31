@@ -8,12 +8,12 @@ const SERIES_TONE_TOKENS = [
 ];
 
 const SERIES_TONE_FALLBACKS = [
-  "#ff9062",
-  "#f4c46d",
-  "#b8d67d",
-  "#f2a78f",
-  "#d6a85a",
-  "#89a95f",
+  "#1565fe",
+  "#b7b000",
+  "#0d47a1",
+  "#fef91b",
+  "#4b86ff",
+  "#8d8800",
 ];
 
 function getRootStyles() {
@@ -37,21 +37,24 @@ export function getThemeSeriesColor(index) {
 
 export function getThemeStatColors() {
   return {
-    solve: getThemeColor("--ctfd-success", "#6f8c37"),
-    fail: getThemeColor("--ctfd-danger", "#b9634f"),
+    solve: getThemeColor("--ctfd-success", "#1565fe"),
+    fail: getThemeColor("--ctfd-danger", "#0d47a1"),
   };
 }
 
 export function getThemeChartColors() {
   return {
-    text: getThemeColor("--ctfd-chart-text", "#2c1913"),
-    textSoft: getThemeColor("--ctfd-chart-text", "#2c1913"),
-    textMuted: getThemeColor("--ctfd-chart-text-muted", "rgba(44, 25, 19, 0.74)"),
-    surfaceHigh: getThemeColor("--ctfd-chart-surface", "#fff8f2"),
-    surfaceBright: getThemeColor("--ctfd-chart-surface", "#fff8f2"),
-    outline: getThemeColor("--ctfd-chart-outline", "rgba(44, 25, 19, 0.16)"),
-    grid: getThemeColor("--ctfd-chart-grid", "rgba(44, 25, 19, 0.11)"),
-    primary: getThemeColor("--ctfd-primary", "#d1713a"),
+    text: getThemeColor("--ctfd-chart-text", "#111111"),
+    textSoft: getThemeColor("--ctfd-chart-text", "#111111"),
+    textMuted: getThemeColor(
+      "--ctfd-chart-text-muted",
+      "rgba(17, 17, 17, 0.7)",
+    ),
+    surfaceHigh: getThemeColor("--ctfd-chart-surface", "#ffffff"),
+    surfaceBright: getThemeColor("--ctfd-chart-surface", "#ffffff"),
+    outline: getThemeColor("--ctfd-chart-outline", "rgba(17, 17, 17, 0.24)"),
+    grid: getThemeColor("--ctfd-chart-grid", "rgba(17, 17, 17, 0.14)"),
+    primary: getThemeColor("--ctfd-primary", "#fef91b"),
     fontBody: getThemeColor(
       "--ctfd-font-body",
       '"Manrope", "Lato", sans-serif',

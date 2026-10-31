@@ -34,4 +34,6 @@ If you want to modify or develop the theme further, follow these steps:
 
 *Note: You do not need the `node_modules` folder in production, you can safely remove it or avoid zipping it if you are packaging the theme directory.*
 
+The homepage logo is styled in `assets/scss/main.scss`: the desktop transform lets it extend beyond the hero card, while the `max-width: 991px` rules add breathing room and keep it contained on smaller screens. In light mode, the navigation frame stays black and its utility divider stays white. Rebuild the theme after changing these rules.
+
 ## Preview
