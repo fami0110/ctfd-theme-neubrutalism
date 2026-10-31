@@ -4078,6 +4078,11 @@ b > .text-danger {
   color: #111 !important;
 }
 
+[data-bs-theme="light"] .navbar .nav-link.active {
+  background: var(--ctfd-primary);
+  color: #111 !important;
+}
+
 [data-bs-theme="light"] .footer-shell,
 [data-bs-theme="light"] .footer-shell .footer-kicker,
 [data-bs-theme="light"] .footer-shell .footer-note,
