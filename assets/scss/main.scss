@@ -3254,7 +3254,9 @@ input[type="file"].form-control:hover::file-selector-button {
     }
 
     :root[data-bs-theme="dark"] & .footer-links a {
+      background: var(--bs-body-bg);
       border-color: var(--ctfd-text);
+      color: var(--ctfd-text);
       box-shadow: none;
     }
 
