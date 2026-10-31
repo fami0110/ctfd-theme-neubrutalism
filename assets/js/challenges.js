@@ -334,8 +334,6 @@ Alpine.data("ChallengeBoard", () => ({
   challenge: null,
   activeCategory: null,
   unsolvedOnly: false,
-  categoriesCollapsed: false,
-  viewportResizeHandler: null,
   hotkeysEnabled: true,
   currentChallengeId: null,
 
@@ -353,12 +351,6 @@ Alpine.data("ChallengeBoard", () => ({
     this.challenges = await CTFd.pages.challenges.getChallenges();
     this.initializeCategory();
     this.loaded = true;
-    this.viewportResizeHandler = () => {
-      if (window.innerWidth < 1280) {
-        this.categoriesCollapsed = false;
-      }
-    };
-    window.addEventListener("resize", this.viewportResizeHandler);
     window.addEventListener("keydown", this.handleKeydown.bind(this));
 
     if (window.location.hash) {
@@ -369,13 +361,6 @@ Alpine.data("ChallengeBoard", () => ({
         let id = pieces[1];
         await this.loadChallenge(id);
       }
-    }
-  },
-
-  destroy() {
-    if (this.viewportResizeHandler) {
-      window.removeEventListener("resize", this.viewportResizeHandler);
-      this.viewportResizeHandler = null;
     }
   },
 
@@ -447,8 +432,14 @@ Alpine.data("ChallengeBoard", () => ({
     return challenges;
   },
 
-  getVisibleChallenges() {
-    let challenges = this.getChallenges(this.activeCategory);
+  getVisibleChallenges(category = null) {
+    const target = category === null ? this.activeCategory : category;
+
+    if (category !== null && this.activeCategory !== null && category !== this.activeCategory) {
+      return [];
+    }
+
+    let challenges = this.getChallenges(target);
 
     if (this.unsolvedOnly) {
       challenges = challenges.filter((challenge) => !challenge.solved_by_me);

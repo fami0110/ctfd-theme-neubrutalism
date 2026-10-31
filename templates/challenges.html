@@ -38,28 +38,8 @@
               <p class="text-muted mb-0">{% trans %}Challenges will appear here once categories and tasks are published.{% endtrans %}</p>
             </div>
 
-             <div
-               class="challenge-workspace"
-               :class="{ 'categories-collapsed': categoriesCollapsed }"
-               x-show="getCategories().length"
-             >
-               <aside class="challenge-category-rail" :class="{ 'is-collapsed': categoriesCollapsed }" aria-label="{% trans %}Challenge categories{% endtrans %}">
-                <div class="challenge-column-head">
-                   <p class="eyebrow" x-show="!categoriesCollapsed">{% trans %}Categories{% endtrans %}</p>
-                   <button
-                     type="button"
-                     class="challenge-category-toggle"
-                     @click="categoriesCollapsed = !categoriesCollapsed"
-                     :aria-expanded="!categoriesCollapsed"
-                     :aria-label="categoriesCollapsed ? '{{ _('Expand categories') }}' : '{{ _('Collapse categories') }}'"
-                   >
-                     <i class="fas" :class="categoriesCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'" aria-hidden="true"></i>
-                   </button>
-                 </div>
-
-                 <div class="challenge-category-collapsed-line" x-show="categoriesCollapsed" aria-hidden="true"></div>
-
-                 <div class="challenge-category-list" x-show="!categoriesCollapsed" aria-label="{% trans %}Challenge category filter{% endtrans %}">
+             <div class="challenge-workspace" x-show="getCategories().length">
+               <div class="challenge-category-bar" role="tablist" aria-label="{% trans %}Challenge category filter{% endtrans %}">
                   <button
                     type="button"
                     class="challenge-category-filter"
@@ -67,7 +47,7 @@
                     @click="setCategory(null)"
                     :aria-pressed="activeCategory === null"
                   >
-                    <span class="challenge-category-filter-name">{% trans %}All{% endtrans %}</span>
+                    {% trans %}All{% endtrans %}
                     <span class="challenge-category-filter-count" x-text="challenges.length"></span>
                   </button>
                   <template x-for="(category, idx) in getCategories()" :key="idx">
@@ -78,7 +58,7 @@
                       @click="setCategory(category)"
                       :aria-pressed="activeCategory === category"
                     >
-                      <span class="challenge-category-filter-name" x-text="category"></span>
+                      <span x-text="category"></span>
                       <span
                         class="challenge-category-filter-count"
                         data-singular="{{ _('challenge') }}"
@@ -88,12 +68,7 @@
                       ></span>
                     </button>
                   </template>
-                </div>
-              </aside>
-
-              <section class="challenge-list-panel">
-                <div class="challenge-column-head">
-                  <h2 x-text="activeCategory || '{{ _('All Challenges') }}'"></h2>
+                  <span class="challenge-category-bar-divider" aria-hidden="true"></span>
                   <button
                     type="button"
                     class="challenge-quick-toggle"
@@ -105,35 +80,40 @@
                   </button>
                 </div>
 
+              <section class="challenge-list-panel">
                 <div class="empty-state empty-state-compact" x-show="!getVisibleChallenges().length">
                   <h3>{% trans %}No matching challenges{% endtrans %}</h3>
                   <p class="text-muted mb-0">{% trans %}Try another category or turn off the unsolved-only filter.{% endtrans %}</p>
                 </div>
 
                 <div class="challenge-stream" x-show="getVisibleChallenges().length">
-                  <template x-for="c in getVisibleChallenges()" :key="c.id">
-                    <button
-                      type="button"
-                      class="challenge-stream-item"
-                      :class="{
-                        'is-active': challenge && challenge.id === c.id,
-                        'challenge-solved': c.solved_by_me
-                      }"
-                      @click="loadChallenge(c.id)"
-                      :aria-pressed="challenge && challenge.id === c.id"
-                    >
-                      <div class="challenge-stream-copy">
-                        <div class="challenge-stream-title-row">
-                          <p x-text="c.name"></p>
-                          <span class="challenge-stream-points" x-text="`${c.value} pts`"></span>
-                        </div>
-                        <div class="challenge-stream-meta">
-                          <span class="challenge-card-label" x-text="c.category || activeCategory"></span>
-                          <span class="challenge-card-status" x-show="c.solved_by_me">{% trans %}Solved{% endtrans %}</span>
-                          <span class="challenge-card-status challenge-card-status-open" x-show="!c.solved_by_me">{% trans %}Open{% endtrans %}</span>
-                        </div>
-                      </div>
-                    </button>
+                  <template x-for="groupCategory in getCategories()" :key="groupCategory">
+                    <div class="challenge-category-row" x-show="getVisibleChallenges(groupCategory).length">
+                      <template x-for="c in getVisibleChallenges(groupCategory)" :key="c.id">
+                        <button
+                          type="button"
+                          class="challenge-stream-item"
+                          :class="{
+                            'is-active': challenge && challenge.id === c.id,
+                            'challenge-solved': c.solved_by_me
+                          }"
+                          @click="loadChallenge(c.id)"
+                          :aria-pressed="challenge && challenge.id === c.id"
+                        >
+                          <div class="challenge-stream-copy">
+                            <div class="challenge-stream-title-row">
+                              <p x-text="c.name"></p>
+                              <span class="challenge-stream-points" x-text="`${c.value} pts`"></span>
+                            </div>
+                            <div class="challenge-stream-meta">
+                              <span class="challenge-card-label" x-text="c.category || activeCategory"></span>
+                              <span class="challenge-card-status" x-show="c.solved_by_me">{% trans %}Solved{% endtrans %}</span>
+                              <span class="challenge-card-status challenge-card-status-open" x-show="!c.solved_by_me">{% trans %}Open{% endtrans %}</span>
+                            </div>
+                          </div>
+                        </button>
+                      </template>
+                    </div>
                   </template>
                 </div>
               </section>
