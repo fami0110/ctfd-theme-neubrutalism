@@ -3380,6 +3380,8 @@ b > .text-danger {
 .challenge-submission-error {
   color: var(--ctfd-danger);
   font-size: 0.82rem;
+}
+
 /* Keep the submit button flush with the flag input: the global .btn lift
    (translate + margin compensation) offsets it out of the grid line. */
 .challenge-submit-grid .key-submit .btn {
