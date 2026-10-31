@@ -1340,7 +1340,7 @@ a:hover {
 .utility-button:focus {
   background: var(--ctfd-primary);
   color: #111 !important;
-  border: 1px solid #000;
+  border: 3px solid #000;
   box-shadow: var(--ctfd-brite-shadow-hover);
   transform: translate(-3px, -3px);
 }
@@ -1351,7 +1351,7 @@ a:hover {
 [data-bs-theme="dark"] .utility-button:focus {
   background: var(--ctfd-text);
   color: var(--ctfd-surface) !important;
-  border: 1px solid #000;
+  border: 3px solid #000;
   box-shadow: var(--ctfd-brite-shadow-hover);
 }
 
@@ -4081,7 +4081,7 @@ b > .text-danger {
 [data-bs-theme="light"] .navbar .nav-link.active {
   background: var(--ctfd-primary);
   color: #111 !important;
-  border: 1px solid #000;
+  border: 3px solid #000;
   box-shadow: none;
   transform: none;
 }
