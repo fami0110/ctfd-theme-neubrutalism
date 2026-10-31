@@ -4081,6 +4081,9 @@ b > .text-danger {
 [data-bs-theme="light"] .navbar .nav-link.active {
   background: var(--ctfd-primary);
   color: #111 !important;
+  border: 1px solid #000;
+  box-shadow: none;
+  transform: none;
 }
 
 [data-bs-theme="light"] .footer-shell,
