@@ -13,18 +13,9 @@ git clone https://github.com/fami0110/ctfd-theme-neubrutalism.git neubrutalism
 
 After cloning, you can select the `neubrutalism` theme from the CTFd Admin Panel under **Config > Themes**.
 
-## IMPORTANT
-
-Because this theme using jinja gadget from server at `page.html` to count the challeng, you need to add this gadget in `CTFd/utils/initialization/__init__.py` at `def init_template_globals(app)`:
-
-```py
-def get_challenge_count():
-   from CTFd.utils.challenges import get_all_challenges
-
-   return len(get_all_challenges())
-
-app.jinja_env.globals.update(get_challenge_count=get_challenge_count)
-```
+The landing page gets the challenge count through CTFd's built-in client-side API:
+`CTFd.pages.challenges.getChallenges()`. The count reflects challenges visible to the
+current visitor, and no CTFd core files need to be modified.
 
 ## Development
 
@@ -43,10 +34,6 @@ If you want to modify or develop the theme further, follow these steps:
 
 *Note: You do not need the `node_modules` folder in production, you can safely remove it or avoid zipping it if you are packaging the theme directory.*
 
-## Preview
+The homepage logo is styled in `assets/scss/main.scss`: the desktop transform lets it extend beyond the hero card, while the `max-width: 991px` rules add breathing room and keep it contained on smaller screens. In light mode, the navigation frame stays black and its utility divider stays white. Rebuild the theme after changing these rules.
 
-<img width="1856" height="1038" alt="Screenshot from 2026-05-11 01-59-32" src="https://github.com/user-attachments/assets/4cae1d63-7c71-472c-a221-224666e4d4c2" />
-<br>
-<img width="1856" height="1228" alt="Screenshot from 2026-05-11 02-01-00" src="https://github.com/user-attachments/assets/f1564eb5-18f9-4142-9458-2eb60feee222" />
-<br>
-<img width="1856" height="1183" alt="screencapture-127-0-0-1-8000-scoreboard-2026-05-11-02_03_26" src="https://github.com/user-attachments/assets/d753079a-4ed6-4a2e-82f5-7e90cfee3c93" />
+## Preview

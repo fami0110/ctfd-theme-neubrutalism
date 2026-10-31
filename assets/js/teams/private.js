@@ -51,7 +51,7 @@ Alpine.data("TeamEditModal", () => ({
     } else {
       this.success = false;
       this.error = true;
-      Object.keys(response.errors).map(error => {
+      Object.keys(response.errors).map((error) => {
         const error_msg = response.errors[error];
         this.errors.push(error_msg);
       });
@@ -73,7 +73,7 @@ Alpine.data("TeamCaptainModal", () => ({
     } else {
       this.success = false;
       this.error = true;
-      Object.keys(response.errors).map(error => {
+      Object.keys(response.errors).map((error) => {
         const error_msg = response.errors[error];
         this.errors.push(error_msg);
       });
@@ -104,13 +104,17 @@ Alpine.data("TeamDisbandModal", () => ({
 Alpine.data("CaptainMenu", () => ({
   captain: false,
 
+  getModal(id) {
+    return Modal.getOrCreateInstance(document.getElementById(id));
+  },
+
   editTeam() {
-    this.teamEditModal = new Modal(document.getElementById("team-edit-modal"));
+    this.teamEditModal = this.getModal("team-edit-modal");
     this.teamEditModal.show();
   },
 
   chooseCaptain() {
-    this.teamCaptainModal = new Modal(document.getElementById("team-captain-modal"));
+    this.teamCaptainModal = this.getModal("team-captain-modal");
     this.teamCaptainModal.show();
   },
 
@@ -126,20 +130,20 @@ Alpine.data("CaptainMenu", () => ({
         token: url,
         errors: [],
       });
-      this.teamInviteModal = new Modal(document.getElementById("team-invite-modal"));
+      this.teamInviteModal = this.getModal("team-invite-modal");
       this.teamInviteModal.show();
     } else {
       Alpine.store("teamInvite", {
         token: "",
         errors: Object.values(response.errors).flat(),
       });
-      this.teamInviteModal = new Modal(document.getElementById("team-invite-modal"));
+      this.teamInviteModal = this.getModal("team-invite-modal");
       this.teamInviteModal.show();
     }
   },
 
   disbandTeam() {
-    this.teamDisbandModal = new Modal(document.getElementById("team-disband-modal"));
+    this.teamDisbandModal = this.getModal("team-disband-modal");
     this.teamDisbandModal.show();
   },
 }));
@@ -151,6 +155,7 @@ Alpine.data("TeamGraphs", () => ({
   solveCount: 0,
   failCount: 0,
   awardCount: 0,
+  themeChangeHandler: null,
 
   getAttemptTotal() {
     return this.solveCount + this.failCount;
@@ -176,6 +181,26 @@ Alpine.data("TeamGraphs", () => ({
     return buildCategoryBreakdown(this.solves.data);
   },
 
+  async renderScoreGraph() {
+    if (!this.$refs.scoregraph || !this.solves || !this.awards) {
+      return;
+    }
+
+    const { getOption, embed } = await loadProfileChartRuntime();
+    const optionMerge = window.teamScoreGraphChartOptions;
+
+    embed(
+      this.$refs.scoregraph,
+      getOption(
+        CTFd.team.id,
+        CTFd.team.name,
+        this.solves.data,
+        this.awards.data,
+        optionMerge,
+      ),
+    );
+  },
+
   async init() {
     this.solves = await CTFd.pages.teams.teamSolves("me");
     this.fails = await CTFd.pages.teams.teamFails("me");
@@ -186,19 +211,16 @@ Alpine.data("TeamGraphs", () => ({
     this.awardCount = this.awards.meta.count;
 
     if (this.$refs.scoregraph) {
-      const { getOption, embed } = await loadProfileChartRuntime();
-      let optionMerge = window.teamScoreGraphChartOptions;
+      this.themeChangeHandler = () => this.renderScoreGraph();
+      window.addEventListener("ctfd:themechange", this.themeChangeHandler);
+      await this.renderScoreGraph();
+    }
+  },
 
-      embed(
-        this.$refs.scoregraph,
-        getOption(
-          CTFd.team.id,
-          CTFd.team.name,
-          this.solves.data,
-          this.awards.data,
-          optionMerge,
-        ),
-      );
+  destroy() {
+    if (this.themeChangeHandler) {
+      window.removeEventListener("ctfd:themechange", this.themeChangeHandler);
+      this.themeChangeHandler = null;
     }
   },
 }));

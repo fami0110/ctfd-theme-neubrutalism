@@ -9,7 +9,7 @@
 
 .table > :not(caption) > * > * {
   padding: 0.72rem 0.9rem;
-  border-color: var(--ctfd-outline);
+  border-color: var(--ctfd-field-border);
   vertical-align: middle;
 }
 
@@ -30,20 +30,7 @@
 
 .table-scroll-shell {
   overflow-x: auto;
-  max-width: 100%;
-  overscroll-behavior-inline: contain;
-  scrollbar-gutter: stable;
 
-  &:focus-visible {
-    outline: 3px solid var(--ctfd-primary);
-    outline-offset: 3px;
-  }
-
-  &::before {
-    display: none;
-    content: attr(data-scroll-label);
-  }
-  
   .table {
     min-width: 34rem;
 
@@ -62,6 +49,20 @@
   }
 }
 
+/* Light mode: every table white, matching challenge page */
+[data-bs-theme="light"] .table-scroll-shell .table > thead > tr > th,
+[data-bs-theme="light"] .challenge-table-wrap .table > thead > tr > th {
+  background: #fff;
+}
+
+[data-bs-theme="light"] .table-scroll-shell .table > :not(caption) > * > *,
+[data-bs-theme="light"] .challenge-table-wrap .table > :not(caption) > * > * {
+  background: #fff;
+}
+
+/* Striped tables keep Bootstrap's default zebra tint in light mode;
+   cells above are forced white so odd-row stripes render uniformly. */
+
 
 .table-scroll-shell-directory .table {
   min-width: 42rem;
@@ -79,17 +80,50 @@
   border-radius: inherit;
 }
 
-@media (max-width: 767px) {
-  .table-scroll-shell::before {
-    position: sticky;
-    left: 0;
-    display: block;
-    width: max-content;
-    max-width: calc(100vw - 4rem);
-    margin: 0 0 0.55rem;
-    color: var(--ctfd-text-muted);
-    font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
+/* Table shells: same frame language as brite cards.
+   Frame goes on the <table> itself; needs separated borders so the
+   outline + radius render (collapsed tables can't clip). */
+.table-scroll-shell .table,
+.challenge-table-wrap .table {
+  border: var(--ctfd-brite-border);
+  border-radius: var(--ctfd-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+/* Black frame on light, white frame on dark */
+[data-bs-theme="light"] .table-scroll-shell .table,
+[data-bs-theme="light"] .challenge-table-wrap .table {
+  border-color: #000;
+}
+
+[data-bs-theme="dark"] .table-scroll-shell .table,
+[data-bs-theme="dark"] .challenge-table-wrap .table {
+  border-color: #fff;
+}
+
+.challenge-table-wrap {
+  margin-top: 0;
+}
+
+.challenge-table-wrap .table {
+  margin: 0;
+}
+
+.table-scroll-shell .table > thead > tr > th {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+}
+
+.table-scroll-shell .table > :not(caption) > * > *,
+.challenge-table-wrap .table > :not(caption) > * > * {
+  border-left: 0;
+  border-right: 0;
+}
+
+.table-scroll-shell .table > :not(caption):last-child > * > *,
+.challenge-table-wrap .table > :not(caption):last-child > * > * {
+  border-bottom: 0;
 }

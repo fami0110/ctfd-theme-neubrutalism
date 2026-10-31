@@ -10,7 +10,7 @@ function addTargetBlank(html) {
   let dom = new DOMParser();
   let view = dom.parseFromString(html, "text/html");
   let links = view.querySelectorAll('a[href*="://"]');
-  links.forEach(link => {
+  links.forEach((link) => {
     link.setAttribute("target", "_blank");
     link.setAttribute("rel", "noopener noreferrer");
   });
@@ -97,6 +97,7 @@ Alpine.data("Challenge", () => ({
   selectedRating: 0,
   ratingReview: "",
   ratingSubmitted: false,
+  ratingSubmitting: false,
   ratingError: "",
   solvesLoaded: false,
   submissionsLoaded: false,
@@ -123,7 +124,7 @@ Alpine.data("Challenge", () => ({
     this.solvesLoading = true;
     try {
       this.solves = await CTFd.pages.challenge.loadSolves(this.id);
-      this.solves.forEach(solve => {
+      this.solves.forEach((solve) => {
         solve.date = intl.format(new Date(solve.date));
         return solve;
       });
@@ -141,7 +142,7 @@ Alpine.data("Challenge", () => ({
     try {
       let response = await CTFd.pages.users.userSubmissions("me", this.id);
       this.submissions = response.data;
-      this.submissions.forEach(s => {
+      this.submissions.forEach((s) => {
         s.date = intl.format(new Date(s.date));
         return s;
       });
@@ -171,7 +172,7 @@ Alpine.data("Challenge", () => ({
     }
     this.solutionLoading = true;
     let solution_id = this.getSolutionId();
-    CTFd._functions.challenge.displaySolution = solution => {
+    CTFd._functions.challenge.displaySolution = (solution) => {
       this.solution = solution.html;
       this.solutionLoaded = true;
       this.solutionLoading = false;
@@ -361,18 +362,30 @@ Alpine.data("Challenge", () => ({
   },
 
   async submitRating() {
+    if (!this.selectedRating || this.ratingSubmitting) {
+      return;
+    }
+
     this.ratingError = "";
-    const response = await CTFd.pages.challenge.submitRating(
-      this.id,
-      this.selectedRating,
-      this.ratingReview,
-    );
-    if (response.value) {
-      this.ratingValue = this.selectedRating;
-      this.ratingSubmitted = true;
-      this.ratingError = "";
-    } else {
+    this.ratingSubmitting = true;
+
+    try {
+      const response = await CTFd.pages.challenge.submitRating(
+        this.id,
+        this.selectedRating,
+        this.ratingReview,
+      );
+
+      if (response?.value) {
+        this.ratingValue = this.selectedRating;
+        this.ratingSubmitted = true;
+      } else {
+        this.ratingError = this.labels.ratingErrorLabel;
+      }
+    } catch {
       this.ratingError = this.labels.ratingErrorLabel;
+    } finally {
+      this.ratingSubmitting = false;
     }
   },
 
@@ -422,12 +435,14 @@ Alpine.data("ChallengeBoard", () => ({
 
   async init() {
     const storedState = loadStoredChallengeBoardState();
-    this.activeCategory =
-      Object.prototype.hasOwnProperty.call(storedState, "activeCategory")
-        ? storedState.activeCategory
-        : null;
+    this.activeCategory = Object.prototype.hasOwnProperty.call(
+      storedState,
+      "activeCategory",
+    )
+      ? storedState.activeCategory
+      : null;
     this.unsolvedOnly = Boolean(storedState.unsolvedOnly);
-    this.currentChallengeId = storedState.currentChallengeId || null;
+    this.currentChallengeId = null;
 
     this.challenges = await CTFd.pages.challenges.getChallenges();
     this.initializeCategory();
@@ -442,32 +457,16 @@ Alpine.data("ChallengeBoard", () => ({
         let id = pieces[1];
         await this.loadChallenge(id);
       }
-    } else if (
-      this.currentChallengeId &&
-      this.challenges.some(challenge => challenge.id == this.currentChallengeId)
-    ) {
-      const visibleChallenges = this.getVisibleChallenges();
-      const storedVisible = visibleChallenges.some(
-        challenge => challenge.id == this.currentChallengeId,
-      );
-
-      if (storedVisible) {
-        await this.loadChallenge(this.currentChallengeId);
-      } else if (visibleChallenges.length > 0) {
-        await this.loadChallenge(visibleChallenges[0].id);
-      }
-    } else if (this.challenges.length > 0) {
-      let initialChallenges = this.getVisibleChallenges();
-      if (initialChallenges.length > 0) {
-        await this.loadChallenge(initialChallenges[0].id);
-      }
     }
   },
 
   initializeCategory() {
     const categories = this.getCategories();
 
-    if (this.activeCategory !== null && !categories.includes(this.activeCategory)) {
+    if (
+      this.activeCategory !== null &&
+      !categories.includes(this.activeCategory)
+    ) {
       this.activeCategory = null;
     }
 
@@ -482,7 +481,7 @@ Alpine.data("ChallengeBoard", () => ({
   getCategories() {
     const categories = [];
 
-    this.challenges.forEach(challenge => {
+    this.challenges.forEach((challenge) => {
       const { category } = challenge;
 
       if (!categories.includes(category)) {
@@ -509,7 +508,9 @@ Alpine.data("ChallengeBoard", () => ({
     let challenges = this.challenges;
 
     if (category !== null) {
-      challenges = this.challenges.filter(challenge => challenge.category === category);
+      challenges = this.challenges.filter(
+        (challenge) => challenge.category === category,
+      );
     }
 
     try {
@@ -527,11 +528,17 @@ Alpine.data("ChallengeBoard", () => ({
     return challenges;
   },
 
-  getVisibleChallenges() {
-    let challenges = this.getChallenges(this.activeCategory);
+  getVisibleChallenges(category = null) {
+    const target = category === null ? this.activeCategory : category;
+
+    if (category !== null && this.activeCategory !== null && category !== this.activeCategory) {
+      return [];
+    }
+
+    let challenges = this.getChallenges(target);
 
     if (this.unsolvedOnly) {
-      challenges = challenges.filter(challenge => !challenge.solved_by_me);
+      challenges = challenges.filter((challenge) => !challenge.solved_by_me);
     }
 
     return challenges;
@@ -543,7 +550,7 @@ Alpine.data("ChallengeBoard", () => ({
     }
 
     return this.getVisibleChallenges().findIndex(
-      challenge => challenge.id === this.challenge.id,
+      (challenge) => challenge.id === this.challenge.id,
     );
   },
 
@@ -553,7 +560,9 @@ Alpine.data("ChallengeBoard", () => ({
 
   canGoNext() {
     const currentIndex = this.getCurrentChallengeIndex();
-    return currentIndex >= 0 && currentIndex < this.getVisibleChallenges().length - 1;
+    return (
+      currentIndex >= 0 && currentIndex < this.getVisibleChallenges().length - 1
+    );
   },
 
   persistState() {
@@ -604,7 +613,9 @@ Alpine.data("ChallengeBoard", () => ({
 
     if (
       this.challenge &&
-      !this.getVisibleChallenges().some(challenge => challenge.id === this.challenge.id)
+      !this.getVisibleChallenges().some(
+        (challenge) => challenge.id === this.challenge.id,
+      )
     ) {
       if (this.getVisibleChallenges().length > 0) {
         await this.loadChallenge(this.getVisibleChallenges()[0].id);
@@ -621,7 +632,7 @@ Alpine.data("ChallengeBoard", () => ({
     const visibleChallenges = this.getVisibleChallenges();
     const activeStillVisible =
       this.challenge &&
-      visibleChallenges.some(challenge => challenge.id === this.challenge.id);
+      visibleChallenges.some((challenge) => challenge.id === this.challenge.id);
 
     if (!activeStillVisible && visibleChallenges.length > 0) {
       await this.loadChallenge(visibleChallenges[0].id);
@@ -637,7 +648,7 @@ Alpine.data("ChallengeBoard", () => ({
     const visibleChallenges = this.getVisibleChallenges();
     const activeStillVisible =
       this.challenge &&
-      visibleChallenges.some(challenge => challenge.id === this.challenge.id);
+      visibleChallenges.some((challenge) => challenge.id === this.challenge.id);
 
     if (!activeStillVisible && visibleChallenges.length > 0) {
       await this.loadChallenge(visibleChallenges[0].id);
@@ -667,7 +678,7 @@ Alpine.data("ChallengeBoard", () => ({
   },
 
   async loadChallenge(challengeId) {
-    await CTFd.pages.challenge.displayChallenge(challengeId, challenge => {
+    await CTFd.pages.challenge.displayChallenge(challengeId, (challenge) => {
       challenge.data.view = addTargetBlank(challenge.data.view);
       Alpine.store("challenge").data = challenge.data;
       this.challenge = challenge.data;
@@ -678,7 +689,11 @@ Alpine.data("ChallengeBoard", () => ({
       this.persistState();
 
       Alpine.nextTick(() => {
-        history.replaceState(null, null, `#${challenge.data.name}-${challengeId}`);
+        history.replaceState(
+          null,
+          null,
+          `#${challenge.data.name}-${challengeId}`,
+        );
         if (window.innerWidth < 992) {
           this.$refs.challengeDetail.scrollIntoView({
             behavior: "smooth",

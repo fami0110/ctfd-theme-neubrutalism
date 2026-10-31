@@ -49,14 +49,15 @@ export function getOption(id, name, solves, awards, optionMerge) {
     }
   }
 
-  times.forEach(time => {
+  times.forEach((time) => {
     option.xAxis[0].data.push(time);
   });
 
   option.series.push({
     name: name,
     type: "line",
-    showSymbol: false,
+    showSymbol: true,
+    showAllSymbol: true,
     symbol: "circle",
     symbolSize: 6,
     lineStyle: {

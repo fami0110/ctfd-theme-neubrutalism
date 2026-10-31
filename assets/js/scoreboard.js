@@ -27,7 +27,7 @@ function runScoreboardPolling() {
     return;
   }
 
-  scoreboardSubscribers.forEach(callback => callback());
+  scoreboardSubscribers.forEach((callback) => callback());
 }
 
 function subscribeToScoreboardPolling(callback) {
@@ -35,7 +35,10 @@ function subscribeToScoreboardPolling(callback) {
   callback();
 
   if (!scoreboardPoller) {
-    scoreboardPoller = window.setInterval(runScoreboardPolling, scoreboardUpdateInterval);
+    scoreboardPoller = window.setInterval(
+      runScoreboardPolling,
+      scoreboardUpdateInterval,
+    );
   }
 
   return () => {
@@ -53,11 +56,9 @@ Alpine.data("ScoreboardDetail", () => ({
   show: true,
   activeBracket: null,
   unsubscribe: null,
+  themeChangeHandler: null,
 
-  async update() {
-    this.data = await CTFd.pages.scoreboard.getScoreboardDetail(10, this.activeBracket);
-    this.show = Object.keys(this.data).length > 0;
-
+  async renderChart() {
     if (!this.show) {
       return;
     }
@@ -69,7 +70,18 @@ Alpine.data("ScoreboardDetail", () => ({
     embed(this.$refs.scoregraph, option);
   },
 
+  async update() {
+    this.data = await CTFd.pages.scoreboard.getScoreboardDetail(
+      10,
+      this.activeBracket,
+    );
+    this.show = Object.keys(this.data).length > 0;
+    await this.renderChart();
+  },
+
   async init() {
+    this.themeChangeHandler = () => this.renderChart();
+    window.addEventListener("ctfd:themechange", this.themeChangeHandler);
     this.unsubscribe = subscribeToScoreboardPolling(() => this.update());
   },
 
@@ -77,6 +89,10 @@ Alpine.data("ScoreboardDetail", () => ({
     if (this.unsubscribe) {
       this.unsubscribe();
       this.unsubscribe = null;
+    }
+    if (this.themeChangeHandler) {
+      window.removeEventListener("ctfd:themechange", this.themeChangeHandler);
+      this.themeChangeHandler = null;
     }
   },
 }));
@@ -88,12 +104,14 @@ Alpine.data("ScoreboardList", () => ({
   unsubscribe: null,
 
   async update() {
-    this.brackets = await CTFd.pages.scoreboard.getBrackets(CTFd.config.userMode);
+    this.brackets = await CTFd.pages.scoreboard.getBrackets(
+      CTFd.config.userMode,
+    );
     this.standings = await CTFd.pages.scoreboard.getScoreboard();
   },
 
   async init() {
-    this.$watch("activeBracket", value => {
+    this.$watch("activeBracket", (value) => {
       this.$dispatch("bracket-change", value);
     });
 

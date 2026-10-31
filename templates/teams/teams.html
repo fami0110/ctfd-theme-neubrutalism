@@ -13,22 +13,9 @@
   <section class="page-section">
     <div class="container">
       <div class="directory-shell">
-        {% if q and field %}
-          <div class="page-panel directory-search-summary">
-            <p class="eyebrow">{% trans %}Filtered results{% endtrans %}</p>
-            <h2>{% trans %}Teams matching your search{% endtrans %}</h2>
-            <p class="text-muted">
-              {% trans %}Searching for teams with <strong>{{ field }}</strong> matching <strong>{{ q }}</strong>{% endtrans %}
-            </p>
-            <p class="text-muted mb-0">
-              {% trans page=teams.page, total=teams.total %}Page {{ page }} of {{ total }} results{% endtrans %}
-            </p>
-          </div>
-        {% endif %}
-
         {% with form = Forms.teams.PublicTeamSearchForm(field=field, q=q) %}
           <form method="GET" class="page-panel directory-search-form">
-            <div>
+            <div class="directory-field-select">
               {{ form.field(class="form-select w-100") }}
             </div>
 
@@ -46,7 +33,17 @@
         {% endwith %}
 
         <div class="page-panel directory-table-panel">
-        <div class="table-scroll-shell table-scroll-shell-directory" tabindex="0" role="region" aria-label="{% trans %}Teams directory table{% endtrans %}" data-scroll-label="{% trans %}Swipe or scroll to see all columns{% endtrans %}">
+        {% if q and field %}
+          <div class="directory-filter-summary">
+            <p class="directory-filter-copy">
+              {% trans %}Searching for teams with <strong>{{ field }}</strong> matching <strong>"{{ q }}"</strong>{% endtrans %}
+            </p>
+            <p class="directory-filter-page text-muted mb-0">
+              {% trans total=teams.total %}Found {{ total }} results{% endtrans %}
+            </p>
+          </div>
+        {% endif %}
+        <div class="table-scroll-shell table-scroll-shell-directory">
         <table class="table table-striped align-middle">
           <thead>
           <tr>
@@ -107,12 +104,11 @@
           </tbody>
         </table>
         </div>
-        </div>
 
     {% if teams.pages > 1 %}
       {% set page_start = [1, teams.page - 2] | max %}
       {% set page_end = [teams.pages, teams.page + 2] | min %}
-      <nav class="page-panel directory-pagination" aria-label="{% trans %}Teams pagination{% endtrans %}">
+      <nav class="directory-pagination" aria-label="{% trans %}Teams pagination{% endtrans %}">
         <p class="directory-pagination-summary">
           {% trans page=teams.page, total=teams.pages %}Page {{ page }} of {{ total }}{% endtrans %}
         </p>
@@ -154,6 +150,7 @@
         </div>
       </nav>
     {% endif %}
+        </div>
       </div>
     </div>
   </section>

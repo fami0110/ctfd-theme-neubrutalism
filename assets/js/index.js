@@ -7,6 +7,7 @@ import advancedFormat from "dayjs/plugin/advancedFormat";
 import times from "./theme/times";
 import styles from "./theme/styles";
 import highlight from "./theme/highlight";
+import navbar from "./theme/navbar";
 
 import alerts from "./utils/alerts";
 import tooltips from "./utils/tooltips";
@@ -28,6 +29,7 @@ registerActiveInstances(Alpine, CTFd);
   styles();
   times();
   highlight();
+  navbar();
 
   alerts();
   tooltips();

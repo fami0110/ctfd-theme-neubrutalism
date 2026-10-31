@@ -1,6 +1,6 @@
 .jumbotron {
   padding: clamp(2rem, 4vw, 3rem);
   margin-bottom: 1.5rem;
-  border-radius: 1.25rem;
+  border-radius: var(--ctfd-radius-lg);
   text-align: left;
 }

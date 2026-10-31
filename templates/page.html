@@ -7,13 +7,20 @@
         <div class="page-hero-grid">
           <div class="page-hero-copy">
             <div class="page-hero-title">
-              <h1>{{ Configs.ctf_name }}</h1>
-              <p class="lede">{{ Configs.ctf_description | safe }}</p>
+              <h1 class="hero-stamp">
+                <img src="{{ url_for('views.themes_beta', theme='neobrutalism', path='img/playit.webp') }}" alt="Capture The Flag PlayIT!PLUS" width="2716" height="547" fetchpriority="high">
+              </h1>
             </div>
             <div class="hero-actions">
-              <a class="btn btn-primary" href="{{ url_for('challenges.listing') }}">
-                {% trans %}Open Challenges{% endtrans %}
-              </a>
+              {% if authed() %}
+                <a class="btn btn-primary" href="{{ url_for('challenges.listing') }}">
+                  {% trans %}Open Challenges{% endtrans %}
+                </a>
+              {% else %}
+                <a class="btn btn-primary" href="{{ url_for('auth.login') }}">
+                  {% trans %}Login{% endtrans %}
+                </a>
+              {% endif %}
               {% if authed() %}
                 <a class="btn btn-secondary" href="{{ url_for('scoreboard.listing') }}">
                   {% trans %}View Scoreboard{% endtrans %}
@@ -29,14 +36,13 @@
               {% endif %}
             </div>
           </div>
-          <div class="hero-panel">
+          <div class="hero-panel"
+               x-data="HeroPanel"
+               data-start="{{ get_config('start') or 0 }}"
+               data-end="{{ get_config('end') or 0 }}">
             <div class="hero-panel-spotlight">              
-              <div x-data="HeroPanel"
-              data-start="{{ get_config('start') or 0 }}"
-              data-end="{{ get_config('end') or 0 }}">
-                <h2 class="eyebrow" x-text="label"></h2>
-                <div class="hero-clock" x-text="timer"></div>
-              </div>
+              <h2 class="eyebrow" x-text="label"></h2>
+              <div class="hero-clock" x-text="timer"></div>
             </div>
             <div class="hero-metrics">
               <div>
@@ -45,7 +51,11 @@
               </div>
               <div>
                 <span class="fw-bold">{% trans %}Challenges{% endtrans %}</span>
-                <strong>{{ get_challenge_count() }}</strong>
+                {% if authed() %}
+                  <strong x-text="challengeCount"></strong>
+                {% else %}
+                  <strong>{% trans %}-{% endtrans %}</strong>
+                {% endif %}
               </div>
               <div>
                 <span class="fw-bold">{% trans %}Status{% endtrans %}</span>
